@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - 1
+  - 2
+  - 3
+  - find
+  - bg
+  - ui
+  - cover
+  - check
+  - land
+  - head
+  - detailmap
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - bfg
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: hide
+    uniqueID: 859141859
+    locked: 0
+  - name: background
+    uniqueID: 3263586339
+    locked: 0
+  - name: New Layer
+    uniqueID: 2138545129
+    locked: 0
+  - name: 1
+    uniqueID: 4281596561
+    locked: 0
+  - name: upper
+    uniqueID: 1221772095
+    locked: 0
+  - name: top1
+    uniqueID: 2318938057
+    locked: 0
+  - name: top2
+    uniqueID: 3449336485
+    locked: 0
