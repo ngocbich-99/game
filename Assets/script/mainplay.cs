@@ -22,9 +22,30 @@ public class mainplay : MonoBehaviour
     string scene_present ;
     int present_map ;
     int present_level;
+    
+    //audio 
+    [SerializeField] private AudioClip correctSound;
+    [SerializeField] private AudioClip wrongSound;
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioClip loseSound;
+    [SerializeField] private AudioClip backgroundSound;
+    [SerializeField]
+    [Range(0,1)]
+    float soundVolume = 0.7f ;
+
+    [SerializeField] 
+    [Range(0.0f, 1.0f)] 
+    private float volumeBg = 1f;
+    
+    //game status
+    private GameStatus gameStatus = GameStatus.stopPlay;
+
     // Start is called before the first frame update
     void Start()
     {
+        //playing game
+        gameStatus = GameStatus.Playing;
+        
         sn = GameObject.Find("scenename");
         scene_present = SceneManager.GetActiveScene().name;
         sn.GetComponent<UnityEngine.UI.Text>().text = scene_present;
@@ -32,7 +53,7 @@ public class mainplay : MonoBehaviour
         present_level = scene_present[5] - 48;
         total_map_check = 0;
         clue1.SetActive(false);
-        light1.SetActive (false);
+        // light1.SetActive (false);
         wrong.SetActive(false);
         darkpic.SetActive(false);
         Global.check = 0;
@@ -40,47 +61,46 @@ public class mainplay : MonoBehaviour
         box.SetActive(false);
         status.SetActive(false);
         gold.SetActive(false);
-       
+        
+        AudioSource.PlayClipAtPoint(backgroundSound,gameObject.transform.position, volumeBg);
     }
-   
-
+    
     // Update is called once per frame
     void Update()
     {
         timedisplay.GetComponent<UnityEngine.UI.Text>().text  = Global.time.ToString("F0") + " s";
-        tx_score.text = Global.score.ToString();
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            tx_score.text = Global.score.ToString();
+            if (Input.GetMouseButtonDown(0))
             {
-
-                Vector3 mousePos = hit.point;
-                //Select stage    
-                clickevent(hit.collider.gameObject,mousePos);
-                return;
-
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    Vector3 mousePos = hit.point;
+                    //Select stage    
+                    clickevent(hit.collider.gameObject,mousePos);
+                    return;
+                }
             }
-        }
-       
 
-        if (!GameObject.FindGameObjectWithTag("find"))
-        {
-            //complete level
-            endLevel(1);
-        }
-        else
-        {
-            if (Global.check == 1)
+            if (gameStatus == GameStatus.Playing)
             {
-                //incomplete
-                endLevel(0);
+                if (!GameObject.FindGameObjectWithTag("find"))
+                {
+                    //complete level
+                    endLevel(1);
+                }
+                else
+                {
+                    if (Global.check == 1)
+                    {
+                        //incomplete
+                        endLevel(0);
+                    }
+                }
             }
-        }
-
-        //Debug.Log(darkpic.activeSelf + "update");
-
+            
+            // Debug.Log(darkpic.activeSelf + "update");
     }
     
    public void endLevel(int kt)
@@ -91,12 +111,15 @@ public class mainplay : MonoBehaviour
         status.SetActive(true);
         tx_score.text = "";
         timedisplay.SetActive(false);
-        
+        //win game
         if (kt == 1 && kt1==1)
         {
+            AudioSource.PlayClipAtPoint(winSound,gameObject.transform.position, soundVolume);
+            //status win
+            gameStatus = GameStatus.stopPlay;
             kt1++;
             gold.SetActive(true);
-            status.GetComponent<UnityEngine.UI.Text>().text = "COMPLETED";
+            status.GetComponent<UnityEngine.UI.Text>().text = "YOU WIN";
             sta1.SetActive(true);
             sta2.SetActive(true);
             sta3.SetActive(true);
@@ -152,15 +175,16 @@ public class mainplay : MonoBehaviour
             {
                 // add the score only
             }
-           
-          
-
-           
-           // Global.levelup = 1;
+            // Global.levelup = 1;
         }
         if (kt == 0)
         {
-            status.GetComponent<UnityEngine.UI.Text>().text = "FALSE";
+            //lose game
+            AudioSource.PlayClipAtPoint(loseSound, transform.transform.position, soundVolume);
+            //game status lose
+            gameStatus = GameStatus.stopPlay;
+            Debug.Log("lose");
+            status.GetComponent<UnityEngine.UI.Text>().text = "GAME OVER";
             restart.SetActive(true);
             exit.SetActive(true);
             //REDIRECT TP PRESENT_MAP
@@ -173,21 +197,20 @@ public class mainplay : MonoBehaviour
         // Destroy the gameObject after clicking on it
         if (obj.tag == "find")
         {
-
             string clickname = obj.name;
-
-          
             if (cluename == clickname)
             {
                 clue1.SetActive(false);
                 cluename = "";
             }
+            AudioSource.PlayClipAtPoint(correctSound, obj.transform.position ,soundVolume);
             obj.transform.position = new Vector3(0, 0);
-            light1.SetActive(true);
-            StartCoroutine(RemoveAfterSeconds(1, light1));
+            // light1.SetActive(true);
+            GameObject lightPrefabs = Instantiate(light1, Vector3.zero, Quaternion.identity);
+            Destroy(lightPrefabs, 1f);
+            
+            // StartCoroutine(RemoveAfterSeconds(1, light1));
             StartCoroutine(RemoveAfterSecondsfind(1, obj));
-           
-
         }
         else
         {   if(obj.tag == "ui")
@@ -251,10 +274,11 @@ public class mainplay : MonoBehaviour
             }
             else
             {
-               // Debug.Log("no");
+                //click sai object can tim active wrong
                 StartCoroutine(RemoveAfterSeconds(0.3f, wrong));
+                AudioSource.PlayClipAtPoint(wrongSound, v, soundVolume);
                 wrong.SetActive(true);
-                wrong.transform.position = v;
+                wrong.transform.position = v; //v la gi
                 Global.time = Global.time - 5;
                 //Debug.Log(wrong.transform.position);
 
